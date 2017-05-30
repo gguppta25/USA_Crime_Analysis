@@ -1,0 +1,48 @@
+
+REGISTER /home/acadgild/pig/piggybank.jar;
+
+uscrime = LOAD 'crime.csv' USING org.apache.pig.piggybank.storage.CSVExcelStorage()	
+AS (ID: int, CaseNumber: chararray ,Date: chararray,	Block: chararray,IUCR: chararray,PrimaryType: chararray,Description: chararray,	LocationDescription: chararray,
+Arrest: chararray,Domestic: chararray,Beat: int,District: chararray,Ward: chararray,CommunityArea: chararray,FBICode: chararray,
+XCoordinate: chararray,	YCoordinate: chararray,Year: chararray,UpdatedOn: chararray,
+Latitude: chararray,Longitude: chararray,Location: chararray );
+
+
+Problem-1 : Write a mapreduce/pig program to calculate the number of cases investigated under each FBI code
+
+us = FOREACH uscrime GENERATE ID , CaseNumber , FBICode;
+us_grp = GROUP us BY FBICode;
+fbi_case = FOREACH us_grp GENERATE group , COUNT(us);
+Dump fbi_case;
+
+
+
+Problem-2 : Write a mapreduce/pig program to calculate the number of cases investigated under FBI code 10.
+
+fbi_case_10 = FILTER fbi_case BY group=='10';
+DUMP fbi_case_10 ;
+			
+			
+
+3.Write a mapreduce/pig program to calculate the number of arrests in theft district
+wise.
+
+theft = FILTER uscrime BY PrimaryType = 'THEFT';
+dist_grp = GROUP theft BY District;
+dist_grp_count = FOREACH dist_grp GENERATE group , COUNT(ID);
+Dump fbi_case;
+
+
+
+
+4.Write a mapreduce/pig program to calculate the number of arrests done
+between october 2014 and october 2015
+
+grunt> arrest_dt  = FOREACH uscrime GENERATE CaseNumber ,Date ,Arrest;
+grunt> arrest_dt_true = FILTER  arrest_dt BY Arrest =='true';
+grunt> arrest_true_oct = FILTER arrest_dt_true BY ( (ToDate(Date ,'yyyy/MM/dd') > ToDate('2014/10/01' ,'yyyy/MM/dd') ) AND (ToDate(Date ,'yyyy/MM/dd') < ToDate('2015/10/01' ,'yyyy/MM/dd')
+grunt> arrest_count = GROUP arrest_true_oct  ALL;
+grunt> arrest_count_number = FOREACH arrest_count COUNT(arrest_true_oct.Arrest);
+grunt> dump arrest_count_number ;
+
+
